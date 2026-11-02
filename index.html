@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Housie Club 90</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#101020;
+ color:white;
+}
+header{
+ padding:22px 18px;
+ background:#1c1935;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ border-bottom:1px solid #393254;
+}
+.logo{font-size:22px;font-weight:bold;color:#c5a5ff}
+.badge{color:#72e6b0;font-size:12px}
+main{max-width:500px;margin:auto;padding:28px 18px}
+.hero{text-align:center;padding:35px 10px}
+.hero h1{font-size:36px;margin:0 0 12px}
+.hero h1 span{color:#bb91ff}
+.hero p{color:#b9b6cc;line-height:1.6}
+.card{
+ background:#201e38;
+ border:1px solid #40395d;
+ border-radius:18px;
+ padding:22px;
+ margin-top:20px;
+}
+input{
+ width:100%;padding:15px;
+ margin:12px 0;
+ border-radius:10px;
+ border:1px solid #55506d;
+ background:#141326;
+ color:white;font-size:16px;
+}
+button{
+ width:100%;padding:15px;
+ border:0;border-radius:10px;
+ background:linear-gradient(90deg,#8155ef,#bd65e9);
+ color:white;font-size:16px;
+ font-weight:bold;cursor:pointer;
+}
+.info{
+ display:flex;justify-content:space-around;
+ text-align:center;margin-top:24px;
+}
+.info strong{display:block;font-size:23px;color:#c5a5ff}
+.info small{color:#aaa}
+.rules{color:#c7c2d7;line-height:1.9}
+footer{text-align:center;color:#89859d;padding:25px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">🎯 HOUSIE CLUB 90</div>
+ <div class="badge">● FREE GAME</div>
+</header>
+
+<main>
+ <section class="hero">
+  <h1>Let's Play <span>Housie!</span></h1>
+  <p>Join the fun. Play together. Enjoy the excitement of the classic 90-number Tambola game.</p>
+ </section>
+
+ <section class="card">
+  <h2>🎮 Join a Game</h2>
+  <p style="color:#aaa">Enter your details to continue</p>
+  <form id="joinForm">
+   <input id="playerName" type="text" placeholder="Enter your name" maxlength="30" required>
+   <input id="roomCode" type="text" placeholder="Enter game room code" required>
+   <button type="submit">JOIN GAME →</button>
+  </form>
+  <p id="message" style="color:#72e6b0;text-align:center"></p>
+ </section>
+
+ <div class="info">
+  <div><strong>90</strong><small>Numbers</small></div>
+  <div><strong>100</strong><small>Players / Room</small></div>
+  <div><strong>FREE</strong><small>To Play</small></div>
+ </div>
+
+ <section class="card">
+  <h2>📖 How To Play</h2>
+  <div class="rules">
+   1. Enter your player name.<br>
+   2. Enter the room code given by Admin.<br>
+   3. Get your unique Housie ticket.<br>
+   4. Watch live numbers.<br>
+   5. Complete a winning pattern.
+  </div>
+ </section>
+</main>
+
+<footer>HOUSIE CLUB 90 © 2026<br>Free Entertainment Game</footer>
+
+<script>
+document.getElementById("joinForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const name=document.getElementById("playerName").value.trim();
+ const room=document.getElementById("roomCode").value.trim();
+ if(!name || !room)return;
+ document.getElementById("message").textContent=
+ "Welcome "+name+"! Game connection will be available soon.";
+});
+</script>
+</body>
+</html>
