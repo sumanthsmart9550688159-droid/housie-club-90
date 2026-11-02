@@ -1,115 +1,75 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Housie Club 90</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#100d20;color:white;font-family:Arial,sans-serif}
-header{background:#21183b;padding:20px;text-align:center;font-size:24px;font-weight:bold;color:#c9a5ff}
-main{max-width:600px;margin:auto;padding:18px}
-.card{background:#211b35;border:1px solid #51416e;border-radius:16px;padding:20px;margin:16px 0}
-h2{color:#d6bdff}
-input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:0;font-size:16px}
-button{background:#8b5cf6;color:white;border:0;padding:13px 18px;border-radius:9px;font-size:16px;font-weight:bold;margin:5px;cursor:pointer}
-button:disabled{opacity:.4}
-.secondary{background:#42345f}
-#game{display:none}
-.ticket{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:15px}
-.cell{background:#34294e;padding:12px 2px;text-align:center;border-radius:5px;font-weight:bold}
-.marked{background:#22a06b;color:white}
-.numbers{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
-.num{background:#34294e;padding:8px 0;text-align:center;border-radius:5px}
-.called{background:#22a06b}
-#last{font-size:42px;color:#d6bdff;text-align:center;font-weight:bold}
-.small{color:#c5b9d9;text-align:center}
-</style>
-</head>
-<body>
-<header>🎟️ HOUSIE CLUB 90</header>
-<main>
-<section id="home">
-<div class="card">
-<h2>Join a Game</h2>
-<input id="player" placeholder="Enter your name">
-<input id="room" placeholder="Enter room code">
-<button onclick="joinGame()">JOIN GAME</button>
-<p class="small">Free entertainment game • 1–90 numbers</p>
-</div>
-<div class="card">
-<h2>How to Play</h2>
-<p>1. Enter your name and room code.</p>
-<p>2. Get your Tambola ticket.</p>
-<p>3. Mark numbers when they are called.</p>
-<p>4. Complete a winning pattern.</p>
-</div>
-</section>
-
-<section id="game">
-<div class="card">
-<h2 id="welcome"></h2>
-<p>Room: <b id="roomName"></b></p>
-<h2>Your Ticket</h2>
-<div class="ticket" id="ticket"></div>
-</div>
-<div class="card">
-<h2>Live Number</h2>
-<div id="last">--</div>
-<p class="small" id="count">Called: 0 / 90</p>
-<div class="numbers" id="board"></div>
-</div>
-<div class="card">
-<h2>Game Controls (Demo)</h2>
-<button onclick="callNumber()">CALL NEXT NUMBER</button>
-<button class="secondary" onclick="location.reload()">EXIT GAME</button>
-<p class="small">This demo runs only on this device.</p>
-</div>
-</section>
-</main>
+*{box-sizing:border-box}body{margin:0;background:#100d20;color:#fff;font-family:Arial,sans-serif}
+header{background:#21183b;padding:18px;text-align:center;color:#c9a5ff;font-size:24px;font-weight:bold}
+main{max-width:760px;margin:auto;padding:14px}.card{background:#211b35;border:1px solid #51416e;border-radius:16px;padding:18px;margin:14px 0}
+h2{color:#d6bdff;margin:0 0 14px}input,select{width:100%;padding:13px;margin:7px 0;border:0;border-radius:9px;font-size:16px}
+button{background:#8b5cf6;color:#fff;border:0;padding:12px 15px;border-radius:9px;font-size:15px;font-weight:bold;margin:4px;cursor:pointer}
+button.alt{background:#42345f}button:disabled{opacity:.4}.row{display:flex;gap:7px;flex-wrap:wrap}.row>*{flex:1;min-width:110px}
+.muted{color:#c8bddc}.status{font-size:18px;color:#b9f6d0}.err{color:#ffaaaa;white-space:pre-wrap}.hidden{display:none}
+#board{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:14px}.ball{background:#34294e;padding:9px 1px;text-align:center;border-radius:6px}.ball.called{background:#159765}
+#ticket{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:12px}.cell{background:#34294e;padding:12px 1px;text-align:center;border-radius:6px;font-weight:bold}.cell.blank{opacity:.12}.cell.hit{background:#16845b}
+.big{font-size:42px;font-weight:bold}.small{font-size:13px;color:#c8bddc}
+</style></head><body>
+<header>🎟️ HOUSIE CLUB 90</header><main>
+<div class="card"><h2>Join a Game</h2>
+<input id="playerName" maxlength="30" placeholder="Enter your name">
+<input id="roomCode" maxlength="12" placeholder="Enter room code">
+<button id="joinBtn">JOIN GAME</button>
+<p class="muted">Free entertainment only · No deposits, betting or cash prizes.</p><div id="joinMsg" class="err"></div></div>
+<div id="game" class="hidden">
+<div class="card"><h2 id="ticketTitle">Your Tambola Ticket</h2><div id="ticket"></div><p class="muted">Your ticket marks called numbers automatically.</p>
+<div class="row"><select id="pattern"><option value="EARLY_FIVE">Early Five</option><option value="TOP_LINE">Top Line</option><option value="MIDDLE_LINE">Middle Line</option><option value="BOTTOM_LINE">Bottom Line</option><option value="FOUR_CORNERS">Four Corners</option><option value="FULL_HOUSE">Full House</option></select><button id="claimBtn">Submit Claim</button></div><div id="claimMsg" class="err"></div></div>
+<div class="card"><h2>Live Game</h2><div class="row"><div><div class="small">Latest number</div><div id="latest" class="big">—</div></div><div><div class="small">Status</div><div id="status" class="status">Waiting</div></div></div><div id="board"></div></div>
+<div class="card"><h2>Admin Login & Controls</h2>
+<input id="email" type="email" placeholder="Admin email"><button id="sendOtp">Send email code</button>
+<input id="otp" inputmode="numeric" placeholder="8-digit code"><button id="verifyOtp">Verify code</button>
+<div id="adminPanel" class="hidden">
+<button id="createRoom">Create new room</button><p id="createdRoom" class="status"></p>
+<div class="row"><button id="startBtn">Start</button><button class="alt" id="pauseBtn">Pause</button><button class="alt" id="resumeBtn">Resume</button></div>
+<label class="small">Seconds between numbers<select id="interval"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select></label>
+<p class="muted">Automatic calls run from this Admin browser. Keep this page open and the phone awake; closing/sleeping it pauses calls.</p>
+</div><div id="adminMsg" class="err"></div></div>
+</div></main>
 <script>
-let ticketNumbers=[];
-let called=[];
-function joinGame(){
- const name=document.getElementById('player').value.trim();
- const room=document.getElementById('room').value.trim();
- if(!name||!room){alert('Enter your name and room code');return;}
- document.getElementById('home').style.display='none';
- document.getElementById('game').style.display='block';
- document.getElementById('welcome').textContent='Welcome, '+name;
- document.getElementById('roomName').textContent=room;
- makeTicket();
- makeBoard();
+const SUPABASE_URL="https://pqprvwivbronbbrcetco.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="PASTE_PUBLISHABLE_KEY_HERE";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=id=>document.getElementById(id);
+let roomId=null,playerId=null,ticketId=null,ticket=[],admin=false,poll=null,caller=null;
+function say(id,t){$(id).textContent=t||""}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+function render(s){
+ $("status").textContent=s.status||"waiting";
+ const called=new Set(s.called||[]);
+ $("latest").textContent=(s.called||[]).length?s.called[s.called.length-1]:"—";
+ $("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${called.has(i+1)?"called":""}">${i+1}</div>`).join("");
+ $("ticket").innerHTML=ticket.flat().map(n=>`<div class="cell ${n===null?"blank":called.has(n)?"hit":""}">${n??""}</div>`).join("");
+ if(s.status!=="running")stopCaller();else if(admin)startCaller();
 }
-function makeTicket(){
- let pool=Array.from({length:90},(_,i)=>i+1);
- pool.sort(()=>Math.random()-.5);
- ticketNumbers=pool.slice(0,15).sort((a,b)=>a-b);
- let html='';
- for(let i=0;i<27;i++){
-  let value=ticketNumbers[i]||'';
-  html+=`<div class="cell" onclick="markCell(this,${value})">${value}</div>`;
- }
- document.getElementById('ticket').innerHTML=html;
-}
-function markCell(el,value){
- if(value && called.includes(value))el.classList.toggle('marked');
-}
-function makeBoard(){
- let html='';
- for(let i=1;i<=90;i++)html+=`<div class="num" id="n${i}">${i}</div>`;
- document.getElementById('board').innerHTML=html;
-}
-function callNumber(){
- if(called.length>=90){alert('All numbers called');return;}
- let remaining=Array.from({length:90},(_,i)=>i+1).filter(n=>!called.includes(n));
- let n=remaining[Math.floor(Math.random()*remaining.length)];
- called.push(n);
- document.getElementById('last').textContent=n;
- document.getElementById('count').textContent='Called: '+called.length+' / 90';
- document.getElementById('n'+n).classList.add('called');
-}
-</script>
-</body>
-</html>
+async function refresh(){if(!roomId)return;try{const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:playerId});render(s)}catch(e){say("joinMsg",e.message)}}
+$("joinBtn").onclick=async()=>{say("joinMsg","");try{
+ const name=$("playerName").value.trim(),code=$("roomCode").value.trim().toUpperCase();
+ if(!name||!code)throw Error("Enter your name and room code.");
+ const r=await rpc("hc90_join_room",{p_name:name,p_room_code:code});
+ roomId=r.room_id;playerId=r.player_id;ticketId=r.ticket_id;ticket=r.ticket;
+ $("ticketTitle").textContent="Room "+r.room_code+" — Your Ticket";
+ $("roomCode").value=r.room_code;$("game").classList.remove("hidden");
+ await refresh();if(poll)clearInterval(poll);poll=setInterval(refresh,2500);
+ }catch(e){say("joinMsg",e.message)}};
+$("sendOtp").onclick=async()=>{try{const {error}=await db.auth.signInWithOtp({email:$("email").value.trim(),options:{emailRedirectTo:location.origin}});if(error)throw error;say("adminMsg","Email code sent. Check your inbox.")}catch(e){say("adminMsg",e.message)}};
+$("verifyOtp").onclick=async()=>{try{const {data,error}=await db.auth.verifyOtp({email:$("email").value.trim(),token:$("otp").value.trim(),type:"email"});if(error)throw error;const ok=await rpc("hc90_is_admin");if(!ok)throw Error("This account is not authorized as Admin.");admin=true;$("adminPanel").classList.remove("hidden");say("adminMsg","Admin login successful.")}catch(e){say("adminMsg",e.message)}};
+$("createRoom").onclick=async()=>{try{const r=await rpc("hc90_create_room");roomId=r.room_id;playerId=null;say("createdRoom","New room code: "+r.room_code+" — share this code with players.");say("adminMsg","Room created. To see a player ticket, join this room from another device.")}catch(e){say("adminMsg",e.message)}};
+async function adminRpc(fn,args={}){try{await rpc(fn,{p_room_id:roomId,...args});say("adminMsg","Game updated.");await refresh()}catch(e){say("adminMsg",e.message)}}
+$("startBtn").onclick=()=>adminRpc("hc90_start_game",{p_interval_seconds:Number($("interval").value)});
+$("pauseBtn").onclick=()=>adminRpc("hc90_pause_game");
+$("resumeBtn").onclick=()=>adminRpc("hc90_resume_game");
+function stopCaller(){if(caller){clearInterval(caller);caller=null}}
+function startCaller(){if(caller||!admin||!roomId)return;caller=setInterval(async()=>{try{await rpc("hc90_call_next",{p_room_id:roomId});await refresh()}catch(e){say("adminMsg",e.message);stopCaller()}},Number($("interval").value)*1000)}
+$("claimBtn").onclick=async()=>{try{if(!roomId||!playerId||!ticketId)throw Error("Join a room first.");await rpc("hc90_submit_claim",{p_room_id:roomId,p_player_id:playerId,p_ticket_id:ticketId,p_pattern:$("pattern").value});say("claimMsg","Claim submitted. The host must verify it.")}catch(e){say("claimMsg",e.message)}};
+document.addEventListener("visibilitychange",()=>{if(document.hidden)stopCaller();else refresh()});
+</script></body></html>
