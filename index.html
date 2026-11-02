@@ -50,7 +50,7 @@ function render(s){
  $("latest").textContent=(s.called||[]).length?s.called[s.called.length-1]:"—";
  $("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${called.has(i+1)?"called":""}">${i+1}</div>`).join("");
  $("ticket").innerHTML=ticket.flat().map(n=>`<div class="cell ${n===null?"blank":called.has(n)?"hit":""}">${n??""}</div>`).join("");
- if(s.status!=="running")stopCaller();else if(admin)startCaller();
+ if(s.status!=="playing")stopCaller();else if(admin)startCaller();
 }
 async function refresh(){if(!roomId||!playerId)return;try{const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:playerId});render(s)}catch(e){say("joinMsg",e.message)}}
 $("joinBtn").onclick=async()=>{say("joinMsg","");try{
