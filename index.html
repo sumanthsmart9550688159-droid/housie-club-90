@@ -45,7 +45,9 @@ let roomId=null,playerId=null,ticketId=null,ticket=[],admin=false,poll=null,call
 function say(id,t){$(id).textContent=t||""}
 async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
 function render(s){
- $("status").textContent=s.status||"waiting";
+ 
+$("status").textContent=s.status==="finished"?"GAME OVER — WINNER: "+(s.winner||"Unknown"):s.status||"waiting";
+
  const called=new Set(s.called||[]);
  $("latest").textContent=(s.called||[]).length?s.called[s.called.length-1]:"—";
  $("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${called.has(i+1)?"called":""}">${i+1}</div>`).join("");
