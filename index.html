@@ -51,7 +51,8 @@ $("status").textContent=s.status==="finished"?"GAME OVER — WINNER: "+(s.winner
  const called=new Set(s.called||[]);
  $("latest").textContent=(s.called||[]).length?s.called[s.called.length-1]:"—";
  $("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${called.has(i+1)?"called":""}">${i+1}</div>`).join("");
- $("ticket").innerHTML=ticket.flat().map(n=>`<div class="cell ${n===null?"blank":called.has(n)?"hit":""}">${n??""}</div>`).join("");
+ ticket=s.ticket||ticket||[];
+$("ticket").innerHTML=ticket.flat().map(n=>`<div class="cell ${n===null?"blank":called.has(n)?"hit":""}">${n??""}</div>`).join("");
  if(s.status!=="playing")stopCaller();else if(admin)startCaller();
 }
 async function refresh(){if(!roomId||!playerId)return;try{const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:playerId});render(s)}catch(e){say("joinMsg",e.message)}}
@@ -66,7 +67,7 @@ $("joinBtn").onclick=async()=>{say("joinMsg","");try{
  }catch(e){say("joinMsg",e.message)}};
 async function activateAdminSession(){
  try{const {data:{session}}=await db.auth.getSession();if(!session)return;
- const ok=await rpc("hc90_is_admin");if(!ok)throw Error("This account is not authorized as Admin.");
+ const ok=awat rpc("hc90_is_admin");if(!ok)throw Error("This account is not authorized as Admin.");
  admin=true;$("adminPanel").classList.remove("hidden");say("adminMsg","Admin login successful.");
  }catch(e){say("adminMsg",e.message)}
 }
