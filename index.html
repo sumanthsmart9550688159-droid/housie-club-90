@@ -83,6 +83,8 @@ padding:12px 1px;text-align:center;border:1px solid #f3c86a;
 border-radius:7px;font-weight:900
 }
 .cell.blank{opacity:.18;background:#eee}
+.cell.markable{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.cell.markable:active{transform:scale(.96)}
 .cell.hit{
 color:#fff;background:linear-gradient(145deg,#24c987,#12865d);
 border-color:#0c8657;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)
@@ -227,6 +229,7 @@ const db=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
 const $=id=>document.getElementById(id);
 let roomId=null,playerId=null,admin=false,poll=null,caller=null,tickets=[],lastCalled=[];
+let manualMarks=new Set();
 
 function say(id,t){$(id).textContent=t||""}
 function escapeHtml(s){
@@ -251,16 +254,32 @@ return[];
 function flat(v){return list(v).flatMap(x=>Array.isArray(x)?flat(x):[x])}
 
 function renderTickets(){
-const called=new Set(lastCalled);
 $("tickets").innerHTML=tickets.map((t,i)=>{
 const cells=flat(t.ticket);
 return `<div class="ticketCard"><b>Ticket ${i+1}</b><div class="ticketGrid">${Array.from({length:27},(_,j)=>{
 const n=cells[j],valid=n!==null&&n!==undefined&&n!=="";
 const num=valid?Number(n):null;
-return `<div class="cell ${!valid?"blank":called.has(num)?"hit":""}">${valid&&Number.isFinite(num)?num:""}</div>`;
+const marked=manualMarks.has(`${i}-${j}`);
+const markable=valid&&Number.isFinite(num)&&!!playerId&&!admin;
+return `<div class="cell ${!valid?"blank":marked?"hit":""} ${markable?"markable":""}" ${markable?`data-ticket="${i}" data-cell="${j}" role="button" aria-pressed="${marked}"`:''}>${valid&&Number.isFinite(num)?num:""}</div>`;
 }).join("")}</div></div>`;
 }).join("");
 }
+
+$("tickets").addEventListener("click",e=>{
+const cell=e.target.closest(".cell[data-ticket][data-cell]");
+if(!cell||!playerId||admin)return;
+const key=`${cell.dataset.ticket}-${cell.dataset.cell}`;
+if(manualMarks.has(key)){
+manualMarks.delete(key);
+cell.classList.remove("hit");
+cell.setAttribute("aria-pressed","false");
+}else{
+manualMarks.add(key);
+cell.classList.add("hit");
+cell.setAttribute("aria-pressed","true");
+}
+});
 
 function stopCaller(){
 if(caller){clearInterval(caller);caller=null}
@@ -326,6 +345,7 @@ const r=await rpc("hc90_request_tickets",{p_name:name,p_room_code:code,p_ticket_
 roomId=r.room_id;
 playerId=r.player_id;
 tickets=[];
+manualMarks.clear();
 $("roomCode").value=r.room_code;
 $("game").classList.remove("hidden");
 $("ticketTitle").textContent="Room "+r.room_code+" — Your Tickets";
@@ -400,6 +420,7 @@ const r=await rpc("hc90_create_room");
 roomId=r.room_id;
 playerId=null;
 tickets=[];
+manualMarks.clear();
 $("createdRoom").textContent="New room code: "+r.room_code+" — share this code with players.";
 $("ticketTitle").textContent="Room "+r.room_code+" — Admin View";
 $("game").classList.remove("hidden");
