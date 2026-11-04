@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -15,6 +16,9 @@ button.alt{background:#42345f}button:disabled{opacity:.4}.row{display:flex;gap:7
 .ticketGrid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:10px}.cell{background:#34294e;padding:12px 1px;text-align:center;border-radius:6px;font-weight:bold}.cell.blank{opacity:.12}.cell.hit{background:#16845b}
 .big{font-size:42px;font-weight:bold}.small{font-size:13px;color:#c8bddc}.ticketCard{border:1px solid #51416e;border-radius:12px;padding:12px;margin:12px 0}
 .request{background:#302548;border-radius:10px;padding:12px;margin:9px 0}.request button{min-width:90px}
+#winnerPanel{display:none;background:#123c2d;border:2px solid #22c55e;border-radius:14px;padding:18px;margin:14px 0;text-align:center}
+#winnerPanel.show{display:block}#winnerPanel h2{color:#86efac;font-size:25px}
+.winnerName{background:#18543e;padding:12px;border-radius:8px;margin:8px 0;font-size:20px;font-weight:bold}
 </style></head><body>
 <header>🎟️ HOUSIE CLUB 90</header><main>
 <div class="card"><h2>Join a Game</h2>
@@ -26,6 +30,7 @@ button.alt{background:#42345f}button:disabled{opacity:.4}.row{display:flex;gap:7
 <p id="requestStatus" class="status"></p>
 <p class="muted">Tickets are generated only after Admin approval. Maximum 3 tickets per player.</p>
 <p class="muted">Free entertainment only · No deposits, betting or cash prizes.</p><div id="joinMsg" class="err"></div></div>
+
 <div class="card"><h2>Admin Login & Controls</h2>
 <input id="email" type="email" placeholder="Admin email"><button id="sendOtp">Send sign-in link</button>
 <p class="muted">A sign-in link will be sent to your email. Open it on this same phone to log in automatically.</p>
@@ -35,9 +40,16 @@ button.alt{background:#42345f}button:disabled{opacity:.4}.row{display:flex;gap:7
 <div class="row"><button id="startBtn">Start</button><button class="alt" id="pauseBtn">Pause</button><button class="alt" id="resumeBtn">Resume</button></div>
 <label class="small">Seconds between numbers<select id="interval"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select></label>
 <h2>Ticket Approval Requests</h2><div id="adminRequests" class="muted">Create a room to view requests.</div>
-<p class="muted">Automatic calls run from this Admin browser. Keep this page open and the phone awake; closing/sleeping it pauses calls.</p>
+<p class="muted">Automatic calls run in this Admin browser. Keep this page open and the phone awake.</p>
 </div><div id="adminMsg" class="err"></div></div>
+
 <div id="game" class="hidden">
+<div id="winnerPanel">
+<h2>🏆 GAME OVER</h2>
+<h2>WINNER CONFIRMED</h2>
+<div id="winnerNames"></div>
+<p><b>No more numbers will be called.</b></p>
+</div>
 <div class="card"><h2 id="ticketTitle">Your Tambola Tickets</h2>
 <div id="ticketStatus" class="status"></div><div id="tickets"></div>
 <div class="row"><select id="pattern"><option value="EARLY_FIVE">Early Five</option><option value="TOP_LINE">Top Line</option><option value="MIDDLE_LINE">Middle Line</option><option value="BOTTOM_LINE">Bottom Line</option><option value="FOUR_CORNERS">Four Corners</option><option value="FULL_HOUSE">Full House</option></select><button id="claimBtn">Submit Claim</button></div><div id="claimMsg" class="err"></div></div>
@@ -49,10 +61,13 @@ const SUPABASE_PUBLISHABLE_KEY="sb_publishable_UHfN2BBfuPHbWXuqbqfyhQ_-dMzdZnM";
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=id=>document.getElementById(id);
 let roomId=null,playerId=null,admin=false,poll=null,caller=null,tickets=[],lastCalled=[];
+
 function say(id,t){$(id).textContent=t||""}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
 function list(v){if(Array.isArray(v))return v;if(v==null)return[];if(typeof v==="string"){try{return list(JSON.parse(v))}catch(_){return[]}}if(typeof v==="object"){for(const k of ["numbers","called","ticket","grid","rows","data"])if(Array.isArray(v[k]))return v[k];return Object.values(v)}return[]}
 function flat(v){return list(v).flatMap(x=>Array.isArray(x)?flat(x):[x])}
+
 function renderTickets(){
  const called=new Set(lastCalled);
  $("tickets").innerHTML=tickets.map((t,i)=>{
@@ -60,14 +75,27 @@ function renderTickets(){
   return `<div class="ticketCard"><b>Ticket ${i+1}</b><div class="ticketGrid">${Array.from({length:27},(_,j)=>{const n=cells[j],valid=n!==null&&n!==undefined&&n!=="";const num=valid?Number(n):null;return `<div class="cell ${!valid?"blank":called.has(num)?"hit":""}">${valid&&Number.isFinite(num)?num:""}</div>`}).join("")}</div></div>`;
  }).join("");
 }
+
+function stopCaller(){if(caller){clearInterval(caller);caller=null}}
+
+function renderWinners(winners){
+ if(!Array.isArray(winners)||!winners.length)return;
+ $("winnerPanel").classList.add("show");
+ $("winnerNames").innerHTML=winners.map((w,i)=>`<div class="winnerName">${i+1}. ${escapeHtml(w.player_name||"Player")}</div>`).join("");
+ stopCaller();
+}
+
 function renderState(s){
  lastCalled=flat(s.called).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=90);
  $("latest").textContent=lastCalled.length?lastCalled[lastCalled.length-1]:"—";
  $("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${lastCalled.includes(i+1)?"called":""}">${i+1}</div>`).join("");
  $("status").textContent=s.status==="finished"?"GAME OVER":s.status||"waiting";
  renderTickets();
- if(!["playing","running"].includes(s.status))stopCaller();else if(admin)startCaller();
+ if(s.winners&&s.winners.length)renderWinners(s.winners);
+ if(s.status==="finished")stopCaller();
+ else if(s.status==="running"&&admin)startCaller();
 }
+
 async function refresh(){
  if(!roomId)return;
  try{
@@ -81,7 +109,7 @@ async function refresh(){
    ]);
    renderState(s);
    const status=a.request_status;
-   say("requestStatus",status==="pending"?"Approval pending — please wait for the Admin.":status==="rejected"?"Your ticket request was rejected. Please contact the Admin.": "Approved! Your tickets are ready.");
+   say("requestStatus",status==="pending"?"Approval pending — please wait for the Admin.":status==="rejected"?"Your ticket request was rejected. Please contact the Admin.":"Approved! Your tickets are ready.");
    $("ticketStatus").textContent=status==="approved"?`${a.tickets.length} ticket(s) approved`:status==="pending"?"Waiting for Admin approval":"Request rejected";
    if(status==="approved"){
     tickets=a.tickets||[];$("game").classList.remove("hidden");$("ticketTitle").textContent="Room "+$("roomCode").value+" — Your Tickets";renderTickets();
@@ -89,6 +117,7 @@ async function refresh(){
   }
  }catch(e){say(admin?"adminMsg":"joinMsg",e.message)}
 }
+
 $("joinBtn").onclick=async()=>{
  say("joinMsg","");say("requestStatus","");
  try{
@@ -103,6 +132,7 @@ $("joinBtn").onclick=async()=>{
   if(poll)clearInterval(poll);await refresh();poll=setInterval(refresh,2500);
  }catch(e){say("joinMsg",e.message)}
 };
+
 async function activateAdminSession(){
  try{
   const {data:{session}}=await db.auth.getSession();if(!session)return;
@@ -118,8 +148,10 @@ async function handleEmailCallback(){
 }
 db.auth.onAuthStateChange((event,session)=>{if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session)setTimeout(()=>activateAdminSession(),0)});
 handleEmailCallback();
+
 $("sendOtp").onclick=async()=>{try{const email=$("email").value.trim();if(!email)throw Error("Enter the Admin email first.");const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+"/"}});if(error)throw error;say("adminMsg","Sign-in link sent. Open the newest email and tap Sign in on this same phone.")}catch(e){say("adminMsg",e.message)}};
 $("verifyOtp").onclick=async()=>{try{const email=$("email").value.trim(),token=$("otp").value.trim();if(!email||!token)throw Error("Enter Admin email and the 8-digit code.");const {error}=await db.auth.verifyOtp({email,token,type:"email"});if(error)throw error;await activateAdminSession()}catch(e){say("adminMsg",e.message)}};
+
 $("createRoom").onclick=async()=>{
  try{const r=await rpc("hc90_create_room");roomId=r.room_id;playerId=null;tickets=[];
   $("createdRoom").textContent="New room code: "+r.room_code+" — share this code with players.";
@@ -128,6 +160,7 @@ $("createRoom").onclick=async()=>{
   await refresh();if(poll)clearInterval(poll);poll=setInterval(refresh,2500);
  }catch(e){say("adminMsg",e.message)}
 };
+
 async function refreshAdminRequests(){
  if(!admin||!roomId)return;
  try{
@@ -136,7 +169,6 @@ async function refreshAdminRequests(){
   $("adminRequests").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>reviewRequest(b.dataset.id,b.dataset.approve==="true"));
  }catch(e){say("adminMsg",e.message)}
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function reviewRequest(id,approve){
  try{await rpc("hc90_review_ticket_request",{p_request_id:id,p_approve:approve});say("adminMsg",approve?"Request approved. Tickets generated.":"Request rejected.");await refreshAdminRequests()}catch(e){say("adminMsg",e.message)}
 }
@@ -144,8 +176,28 @@ async function adminRpc(fn,args={}){try{if(!roomId)throw Error("Create a room fi
 $("startBtn").onclick=()=>adminRpc("hc90_start_game",{p_interval_seconds:Number($("interval").value)});
 $("pauseBtn").onclick=()=>adminRpc("hc90_pause_game");
 $("resumeBtn").onclick=()=>adminRpc("hc90_resume_game");
-function stopCaller(){if(caller){clearInterval(caller);caller=null}}
-function startCaller(){if(caller||!admin||!roomId)return;caller=setInterval(async()=>{try{await rpc("hc90_call_next",{p_room_id:roomId});await refresh()}catch(e){say("adminMsg",e.message);stopCaller()}},Number($("interval").value)*1000)}
-$("claimBtn").onclick=async()=>{try{if(!roomId||!playerId||!tickets.length)throw Error("Wait until your tickets are approved.");const pattern=$("pattern").value;const t=tickets[0];await rpc("hc90_submit_claim",{p_room_id:roomId,p_player_id:playerId,p_ticket_id:t.ticket_id,p_pattern:pattern});say("claimMsg","Claim submitted. The host must verify it.")}catch(e){say("claimMsg",e.message)}};
+
+function startCaller(){
+ if(caller||!admin||!roomId)return;
+ caller=setInterval(async()=>{
+  try{
+   const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
+   if(s.status!=="running"||(s.winners&&s.winners.length)){stopCaller();renderState(s);return;}
+   await rpc("hc90_call_next",{p_room_id:roomId});
+   await refresh();
+  }catch(e){say("adminMsg",e.message);stopCaller()}
+ },Number($("interval").value)*1000);
+}
+
+$("claimBtn").onclick=async()=>{
+ try{
+  if(!roomId||!playerId||!tickets.length)throw Error("Wait until your tickets are approved.");
+  const pattern=$("pattern").value;
+  if(pattern==="FULL_HOUSE")throw Error("Full House is automatic. No claim is needed.");
+  const t=tickets[0];
+  await rpc("hc90_submit_claim",{p_room_id:roomId,p_player_id:playerId,p_ticket_id:t.ticket_id,p_pattern:pattern});
+  say("claimMsg","Claim submitted. The host must verify it.");
+ }catch(e){say("claimMsg",e.message)}
+};
 document.addEventListener("visibilitychange",()=>{if(document.hidden)stopCaller();else refresh()});
 </script></body></html>
