@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,37 +8,144 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#100d20;color:#fff;font-family:Arial,sans-serif}
-header{background:#21183b;padding:18px;text-align:center;color:#c9a5ff;font-size:24px;font-weight:bold}
+:root{
+--ink:#2b1748;--pink:#ff4f9a;--orange:#ff9f43;
+--yellow:#ffd84d;--purple:#7546d8;--blue:#35b9e8;
+--green:#22b879;--cream:#fffaf0;
+}
+body{
+margin:0;color:var(--ink);font-family:Arial,sans-serif;
+background:
+radial-gradient(circle at 8% 8%,rgba(255,216,77,.45) 0 7%,transparent 7.3%),
+radial-gradient(circle at 92% 12%,rgba(255,79,154,.22) 0 9%,transparent 9.3%),
+radial-gradient(circle at 5% 88%,rgba(53,185,232,.22) 0 10%,transparent 10.3%),
+linear-gradient(135deg,#fff1d6 0%,#ffe3f0 48%,#e4f7ff 100%);
+background-attachment:fixed;
+}
+header{
+position:relative;overflow:hidden;text-align:center;padding:22px 14px;
+color:#fff;font-size:clamp(22px,5vw,30px);
+font-weight:900;letter-spacing:1px;
+text-shadow:0 2px 0 rgba(80,30,100,.2);
+background:linear-gradient(100deg,#ff4f9a,#9a4de0 48%,#269fd6);
+border-bottom:5px solid var(--yellow);
+}
+header:before,header:after{
+content:"✦  •  ✧  •  ✦";position:absolute;top:8px;
+color:#ffe77a;font-size:17px;letter-spacing:8px;opacity:.9
+}
+header:before{left:8px}
+header:after{right:8px}
 main{max-width:760px;margin:auto;padding:14px}
-.card{background:#211b35;border:1px solid #51416e;border-radius:16px;padding:18px;margin:14px 0}
-h2{color:#d6bdff;margin:0 0 14px}
-input,select{width:100%;padding:13px;margin:7px 0;border:0;border-radius:9px;font-size:16px}
-button{background:#8b5cf6;color:#fff;border:0;padding:12px 15px;border-radius:9px;font-size:15px;font-weight:bold;margin:4px;cursor:pointer}
-button.alt{background:#42345f}
-button:disabled{opacity:.4}
+.card{
+background:rgba(255,255,255,.94);
+border:2px solid #ffd0e4;border-radius:20px;
+padding:18px;margin:14px 0;
+box-shadow:0 8px 22px rgba(112,58,130,.12);
+}
+h2{color:#7737a9;margin:0 0 14px;font-weight:900}
+input,select{
+width:100%;padding:13px;margin:7px 0;
+border:2px solid #ead9f4;border-radius:11px;
+font-size:16px;background:#fff;color:#38204e;outline:none;
+}
+input:focus,select:focus{
+border-color:#a65be0;box-shadow:0 0 0 3px #f1e1ff
+}
+button{
+background:linear-gradient(110deg,#ff4f9a,#9a4de0);
+color:#fff;border:0;padding:12px 16px;border-radius:12px;
+font-size:15px;font-weight:800;margin:4px;cursor:pointer;
+box-shadow:0 4px 0 #7135a5,0 7px 13px rgba(115,53,165,.16);
+transition:transform .15s,filter .15s;
+}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #7135a5}
+button:hover{filter:brightness(1.06)}
+button.alt{
+background:linear-gradient(110deg,#31b9d8,#287ed0);
+box-shadow:0 4px 0 #205b9a
+}
+button:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:7px;flex-wrap:wrap}
 .row>*{flex:1;min-width:110px}
-.muted{color:#c8bddc}
-.status{font-size:18px;color:#b9f6d0}
-.err{color:#ffaaaa;white-space:pre-wrap}
+.muted{color:#78658a}
+.status{font-size:18px;color:#168653;font-weight:800}
+.err{color:#c52f55;white-space:pre-wrap}
 .hidden{display:none}
-#board{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:14px}
-.ball{background:#34294e;padding:9px 1px;text-align:center;border-radius:6px}
-.ball.called{background:#159765}
-.ticketGrid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:10px}
-.cell{background:#34294e;padding:12px 1px;text-align:center;border-radius:6px;font-weight:bold}
-.cell.blank{opacity:.12}
-.cell.hit{background:#16845b}
-.big{font-size:42px;font-weight:bold}
-.small{font-size:13px;color:#c8bddc}
-.ticketCard{border:1px solid #51416e;border-radius:12px;padding:12px;margin:12px 0}
-.request{background:#302548;border-radius:10px;padding:12px;margin:9px 0}
+#board{
+display:grid;grid-template-columns:repeat(10,1fr);
+gap:5px;margin-top:14px;padding:10px;
+background:linear-gradient(135deg,#fff2c8,#ffe2f0);
+border:1px solid #ffd27d;border-radius:16px;
+}
+.ball{
+background:linear-gradient(145deg,#fff,#f4eaff);
+color:#63338a;padding:9px 1px;text-align:center;
+border:1px solid #e3c8f5;border-radius:9px;
+font-weight:800;box-shadow:0 2px 3px rgba(90,45,120,.08)
+}
+.ball.called{
+color:#fff;background:linear-gradient(145deg,#23c987,#11865c);
+border:1px solid #0e8155;
+box-shadow:0 0 0 2px #b9f3d9,0 3px 8px #72d9ae;
+}
+.ticketGrid{
+display:grid;grid-template-columns:repeat(9,1fr);
+gap:4px;margin-top:10px
+}
+.cell{
+background:linear-gradient(145deg,#fff4b9,#ffe4a0);
+color:#55306e;padding:12px 1px;text-align:center;
+border:1px solid #f3c86a;border-radius:7px;font-weight:900
+}
+.cell.blank{opacity:.18;background:#eee}
+.cell.hit{
+color:#fff;background:linear-gradient(145deg,#24c987,#12865d);
+border-color:#0c8657;
+box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)
+}
+.big{
+font-size:clamp(38px,10vw,54px);font-weight:900;
+color:#f05b93;text-shadow:2px 3px 0 #ffe18a,
+0 5px 12px rgba(240,91,147,.18)
+}
+.small{font-size:13px;color:#806b91;font-weight:700}
+.ticketCard{
+background:linear-gradient(135deg,#fff,#fff7df);
+border:2px dashed #eab75a;border-radius:15px;
+padding:12px;margin:12px 0;
+box-shadow:0 4px 12px rgba(153,105,42,.08)
+}
+.request{
+background:#fff0f7;border:1px solid #ffc8df;
+border-radius:12px;padding:12px;margin:9px 0
+}
 .request button{min-width:90px}
-#winnerPanel{display:none;background:#123c2d;border:2px solid #22c55e;border-radius:14px;padding:18px;margin:14px 0;text-align:center}
+#winnerPanel{
+display:none;
+background:
+radial-gradient(circle at 10% 10%,#fff7a8 0 5%,transparent 5.5%),
+radial-gradient(circle at 90% 15%,#ffd0e7 0 6%,transparent 6.5%),
+linear-gradient(135deg,#fff0a8,#ffdbed,#e2f8ff);
+border:3px solid #f4b934;border-radius:20px;
+padding:20px;margin:14px 0;text-align:center;
+box-shadow:0 8px 24px rgba(207,142,32,.18)
+}
 #winnerPanel.show{display:block}
-#winnerPanel h2{color:#86efac;font-size:25px}
-.winnerName{background:#18543e;padding:12px;border-radius:8px;margin:8px 0;font-size:20px;font-weight:bold}
+#winnerPanel h2{color:#a44a8e;font-size:25px}
+.winnerName{
+background:linear-gradient(100deg,#ffb94d,#ff6d9f);
+color:#fff;padding:12px;border-radius:11px;
+margin:8px 0;font-size:20px;font-weight:900;
+text-shadow:0 1px 2px #a44a5b
+}
+@media(max-width:420px){
+main{padding:9px}
+.card{padding:14px;border-radius:17px}
+#board{gap:3px;padding:7px}
+.ball{padding:8px 0;font-size:13px}
+.cell{padding:10px 0;font-size:13px}
+}
 </style>
 </head>
 <body>
