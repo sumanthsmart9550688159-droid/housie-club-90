@@ -52,12 +52,17 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <body>
 <header>🎟️ HOUSIE CLUB 90</header>
 <main>
+
 <div class="card">
 <h2>Join a Game</h2>
 <input id="playerName" maxlength="30" placeholder="Enter your name">
 <input id="roomCode" maxlength="12" placeholder="Enter room code">
 <label class="small">How many tickets do you need?</label>
-<select id="ticketCount"><option value="1">1 Ticket</option><option value="2">2 Tickets</option><option value="3">3 Tickets</option></select>
+<select id="ticketCount">
+<option value="1">1 Ticket</option>
+<option value="2">2 Tickets</option>
+<option value="3">3 Tickets</option>
+</select>
 <button id="joinBtn">REQUEST TICKET APPROVAL</button>
 <p id="requestStatus" class="status"></p>
 <p class="muted">Tickets are generated only after Admin approval. Maximum 3 tickets per player.</p>
@@ -72,16 +77,26 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <p class="muted">A sign-in link will be sent to your email. Open it on this same phone to log in automatically.</p>
 <input id="otp" inputmode="numeric" placeholder="8-digit code (optional)">
 <button id="verifyOtp">Verify code</button>
+
 <div id="adminPanel" class="hidden">
 <button id="createRoom">Create new room</button>
 <p id="createdRoom" class="status"></p>
-<div class="row"><button id="startBtn">Start</button><button class="alt" id="pauseBtn">Pause</button><button class="alt" id="resumeBtn">Resume</button></div>
+<div class="row">
+<button id="startBtn">Start</button>
+<button class="alt" id="pauseBtn">Pause</button>
+<button class="alt" id="resumeBtn">Resume</button>
+</div>
 <label class="small">Seconds between numbers
 <select id="interval">
-<option value="1">1 Second</option><option value="2">2 Seconds</option><option value="3">3 Seconds</option><option value="4">4 Seconds</option><option value="5">5 Seconds</option><option value="10" selected>10 Seconds</option><option value="15">15 Seconds</option><option value="30">30 Seconds</option>
-</select></label>
-<label class="small">Number Voice Language
-<select id="voiceLanguage"><option value="te">తెలుగు Voice</option><option value="en">English Voice</option></select>
+<option value="1">1 Second</option>
+<option value="2">2 Seconds</option>
+<option value="3">3 Seconds</option>
+<option value="4">4 Seconds</option>
+<option value="5">5 Seconds</option>
+<option value="10" selected>10 Seconds</option>
+<option value="15">15 Seconds</option>
+<option value="30">30 Seconds</option>
+</select>
 </label>
 <h2>Ticket Approval Requests</h2>
 <div id="adminRequests" class="muted">Create a room to view requests.</div>
@@ -91,24 +106,53 @@ button:disabled{opacity:.4;cursor:not-allowed}
 </div>
 
 <div id="game" class="hidden">
-<div id="winnerPanel"><h2>🏆 GAME OVER</h2><h2>WINNER CONFIRMED</h2><div id="winnerNames"></div><p><b>No more numbers will be called.</b></p></div>
+<div class="card">
+<h2>🔊 Voice Settings</h2>
+<label class="small">Choose Number Announcement Language</label>
+<select id="voiceLanguage">
+<option value="te">తెలుగు Voice</option>
+<option value="en">English Voice</option>
+</select>
+<button id="testVoice" class="alt">Test Voice</button>
+<p class="muted">Each phone can choose its own voice language. Keep this game page open to hear announcements.</p>
+</div>
+
+<div id="winnerPanel">
+<h2>🏆 GAME OVER</h2>
+<h2>WINNER CONFIRMED</h2>
+<div id="winnerNames"></div>
+<p><b>No more numbers will be called.</b></p>
+</div>
+
 <div class="card">
 <h2 id="ticketTitle">Your Tambola Tickets</h2>
 <div id="ticketStatus" class="status"></div>
 <div id="tickets"></div>
 <div class="row">
 <select id="pattern">
-<option value="EARLY_FIVE">Early Five</option><option value="TOP_LINE">Top Line</option><option value="MIDDLE_LINE">Middle Line</option><option value="BOTTOM_LINE">Bottom Line</option><option value="FOUR_CORNERS">Four Corners</option><option value="FULL_HOUSE">Full House</option>
+<option value="EARLY_FIVE">Early Five</option>
+<option value="TOP_LINE">Top Line</option>
+<option value="MIDDLE_LINE">Middle Line</option>
+<option value="BOTTOM_LINE">Bottom Line</option>
+<option value="FOUR_CORNERS">Four Corners</option>
+<option value="FULL_HOUSE">Full House</option>
 </select>
 <button id="claimBtn">Submit Claim</button>
 </div>
 <div id="claimMsg" class="err"></div>
 </div>
+
 <div class="card">
 <h2>Live Game</h2>
 <div class="row">
-<div><div class="small">Latest number</div><div id="latest" class="big">—</div></div>
-<div><div class="small">Status</div><div id="status" class="status">Waiting</div></div>
+<div>
+<div class="small">Latest number</div>
+<div id="latest" class="big">—</div>
+</div>
+<div>
+<div class="small">Status</div>
+<div id="status" class="status">Waiting</div>
+</div>
 </div>
 <div id="board"></div>
 </div>
@@ -119,18 +163,30 @@ button:disabled{opacity:.4;cursor:not-allowed}
 const SUPABASE_URL="https://pqprvwivbronbbrcetco.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_UHfN2BBfuPHbWXuqbqfyhQ_-dMzdZnM";
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
 const $=id=>document.getElementById(id);
 let roomId=null,playerId=null,admin=false,poll=null,caller=null,tickets=[],lastCalled=[];
+let announcedNumbers=new Set(),voiceInitialized=false;
 let manualMarks=new Set();
 
 function say(id,t){$(id).textContent=t||""}
-function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+function escapeHtml(s){
+return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+async function rpc(name,args={}){
+const {data,error}=await db.rpc(name,args);
+if(error)throw error;
+return data;
+}
 function list(v){
 if(Array.isArray(v))return v;
 if(v==null)return[];
 if(typeof v==="string"){try{return list(JSON.parse(v))}catch(_){return[]}}
-if(typeof v==="object"){for(const k of ["numbers","called","ticket","grid","rows","data"])if(Array.isArray(v[k]))return v[k];return Object.values(v)}
+if(typeof v==="object"){
+for(const k of ["numbers","called","ticket","grid","rows","data"])
+if(Array.isArray(v[k]))return v[k];
+return Object.values(v);
+}
 return[];
 }
 function flat(v){return list(v).flatMap(x=>Array.isArray(x)?flat(x):[x])}
@@ -152,11 +208,15 @@ $("tickets").addEventListener("click",e=>{
 const cell=e.target.closest(".cell[data-ticket][data-cell]");
 if(!cell||!playerId||admin)return;
 const key=`${cell.dataset.ticket}-${cell.dataset.cell}`;
-if(manualMarks.has(key)){manualMarks.delete(key);cell.classList.remove("hit");cell.setAttribute("aria-pressed","false")}
-else{manualMarks.add(key);cell.classList.add("hit");cell.setAttribute("aria-pressed","true")}
+if(manualMarks.has(key)){manualMarks.delete(key);cell.classList.remove("hit");cell.setAttribute("aria-pressed","false");}
+else{manualMarks.add(key);cell.classList.add("hit");cell.setAttribute("aria-pressed","true");}
 });
 
-function stopCaller(){if(caller){clearInterval(caller);caller=null}}
+function stopCaller(){
+if(caller){clearTimeout(caller);caller=null}
+callingNow=false;
+}
+let callingNow=false;
 
 const teluguNumbers={
 1:"ఒకటి",2:"రెండు",3:"మూడు",4:"నాలుగు",5:"ఐదు",6:"ఆరు",7:"ఏడు",8:"ఎనిమిది",9:"తొమ్మిది",10:"పది",
@@ -170,6 +230,32 @@ const teluguNumbers={
 81:"ఎనభై ఒకటి",82:"ఎనభై రెండు",83:"ఎనభై మూడు",84:"ఎనభై నాలుగు",85:"ఎనభై ఐదు",86:"ఎనభై ఆరు",87:"ఎనభై ఏడు",88:"ఎనభై ఎనిమిది",89:"ఎనభై తొమ్మిది",90:"తొంభై"
 };
 
+function speakNumber(n){
+if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+const lang=$("voiceLanguage")?.value||"te";
+const words=lang==="te"?teluguNumbers[n]:englishNumber(n);
+if(!words)return;
+const u=new SpeechSynthesisUtterance(words);
+u.lang=lang==="te"?"te-IN":"en-IN";
+u.rate=0.9;
+window.speechSynthesis.cancel();
+window.speechSynthesis.speak(u);
+}
+
+function announceNewNumbers(numbers){
+if(!voiceInitialized){
+numbers.forEach(n=>announcedNumbers.add(n));
+voiceInitialized=true;
+return;
+}
+numbers.forEach(n=>{
+if(!announcedNumbers.has(n)){
+announcedNumbers.add(n);
+speakNumber(n);
+}
+});
+}
+
 function englishNumber(n){
 const ones=["zero","one","two","three","four","five","six","seven","eight","nine"];
 const teens=["ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
@@ -179,28 +265,22 @@ if(n<20)return teens[n-10];
 return tens[Math.floor(n/10)]+(n%10?" "+ones[n%10]:"");
 }
 
-function speakNumber(n){
-if(!admin||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
-const lang=$("voiceLanguage")?.value||"te";
-const words=lang==="te"?teluguNumbers[n]:englishNumber(n);
-const utterance=new SpeechSynthesisUtterance(words);
-utterance.lang=lang==="te"?"te-IN":"en-IN";
-utterance.rate=0.9;
-window.speechSynthesis.cancel();
-window.speechSynthesis.speak(utterance);
-}
-
 function renderWinners(winners){
 if(!Array.isArray(winners)||!winners.length)return;
 $("winnerPanel").classList.add("show");
-$("winnerNames").innerHTML=winners.map((w,i)=>`<div class="winnerName">${i+1}. ${escapeHtml(w.player_name||"Player")}</div>`).join("");
+$("winnerNames").innerHTML=winners.map((w,i)=>
+`<div class="winnerName">${i+1}. ${escapeHtml(w.player_name||"Player")}</div>`
+).join("");
 stopCaller();
 }
 
 function renderState(s){
 lastCalled=flat(s.called).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=90);
+announceNewNumbers(lastCalled);
 $("latest").textContent=lastCalled.length?lastCalled[lastCalled.length-1]:"—";
-$("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${lastCalled.includes(i+1)?"called":""}">${i+1}</div>`).join("");
+$("board").innerHTML=Array.from({length:90},(_,i)=>
+`<div class="ball ${lastCalled.includes(i+1)?"called":""}">${i+1}</div>`
+).join("");
 $("status").textContent=s.status==="finished"?"GAME OVER":s.status||"waiting";
 renderTickets();
 if(s.winners&&s.winners.length)renderWinners(s.winners);
@@ -235,14 +315,18 @@ renderTickets();
 }
 
 $("joinBtn").onclick=async()=>{
-say("joinMsg","");say("requestStatus","");
+say("joinMsg","");
+say("requestStatus","");
 try{
 const name=$("playerName").value.trim();
 const code=$("roomCode").value.trim().toUpperCase();
 const count=Number($("ticketCount").value);
 if(!name||!code)throw Error("Enter your name and room code.");
 const r=await rpc("hc90_request_tickets",{p_name:name,p_room_code:code,p_ticket_count:count});
-roomId=r.room_id;playerId=r.player_id;tickets=[];manualMarks.clear();
+roomId=r.room_id;
+playerId=r.player_id;
+tickets=[];
+manualMarks.clear();
 $("roomCode").value=r.room_code;
 $("game").classList.remove("hidden");
 $("ticketTitle").textContent="Room "+r.room_code+" — Your Tickets";
@@ -277,14 +361,17 @@ const {error}=await db.auth.verifyOtp({token_hash:tokenHash,type});
 if(error)throw error;
 history.replaceState({},document.title,location.pathname);
 await activateAdminSession();
-}catch(e){say("adminMsg","Email sign-in failed: "+e.message+". Please request a fresh sign-in link.")}
+}catch(e){
+say("adminMsg","Email sign-in failed: "+e.message+". Please request a fresh sign-in link.");
+}
 return;
 }
 await activateAdminSession();
 }
 
 db.auth.onAuthStateChange((event,session)=>{
-if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session)setTimeout(()=>activateAdminSession(),0);
+if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session)
+setTimeout(()=>activateAdminSession(),0);
 });
 handleEmailCallback();
 
@@ -311,7 +398,10 @@ await activateAdminSession();
 $("createRoom").onclick=async()=>{
 try{
 const r=await rpc("hc90_create_room");
-roomId=r.room_id;playerId=null;tickets=[];manualMarks.clear();
+roomId=r.room_id;
+playerId=null;
+tickets=[];
+manualMarks.clear();
 $("createdRoom").textContent="New room code: "+r.room_code+" — share this code with players.";
 $("ticketTitle").textContent="Room "+r.room_code+" — Admin View";
 $("game").classList.remove("hidden");
@@ -326,8 +416,12 @@ async function refreshAdminRequests(){
 if(!admin||!roomId)return;
 try{
 const reqs=await rpc("hc90_get_ticket_requests",{p_room_id:roomId});
-$("adminRequests").innerHTML=reqs.length?reqs.map(q=>`<div class="request"><b>${escapeHtml(q.player_name)}</b><p>${q.requested_count} ticket(s) requested</p><button data-id="${q.request_id}" data-approve="true">Approve</button><button class="alt" data-id="${q.request_id}" data-approve="false">Reject</button></div>`).join(""):"No pending requests.";
-$("adminRequests").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>reviewRequest(b.dataset.id,b.dataset.approve==="true"));
+$("adminRequests").innerHTML=reqs.length?reqs.map(q=>
+`<div class="request"><b>${escapeHtml(q.player_name)}</b><p>${q.requested_count} ticket(s) requested</p><button data-id="${q.request_id}" data-approve="true">Approve</button><button class="alt" data-id="${q.request_id}" data-approve="false">Reject</button></div>`
+).join(""):"No pending requests.";
+$("adminRequests").querySelectorAll("button[data-id]").forEach(b=>
+b.onclick=()=>reviewRequest(b.dataset.id,b.dataset.approve==="true")
+);
 }catch(e){say("adminMsg",e.message)}
 }
 
@@ -355,30 +449,53 @@ $("pauseBtn").onclick=()=>adminRpc("hc90_pause_game");
 $("resumeBtn").onclick=()=>adminRpc("hc90_resume_game");
 
 function startCaller(){
-if(caller||!admin||!roomId)return;
-caller=setInterval(async()=>{
+if(callingNow||!admin||!roomId)return;
+callingNow=true;
+async function callNext(){
+if(!callingNow||!admin||!roomId)return;
 try{
-const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
-if(s.status!=="playing"||(s.winners&&s.winners.length)){stopCaller();renderState(s);return}
+const state=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
+if(state.status!=="playing"||(state.winners&&state.winners.length)){
+stopCaller();
+renderState(state);
+return;
+}
 await rpc("hc90_call_next",{p_room_id:roomId});
-const updated=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
-const called=flat(updated.called).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=90);
-if(called.length)speakNumber(called[called.length-1]);
 await refresh();
-}catch(e){say("adminMsg",e.message);stopCaller()}
-},Number($("interval").value)*1000);
+const updated=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
+if(updated.status!=="playing"||(updated.winners&&updated.winners.length)){
+stopCaller();
+renderState(updated);
+return;
+}
+caller=setTimeout(callNext,Number($("interval").value)*1000);
+}catch(e){say("adminMsg",e.message);stopCaller();}
+}
+callNext();
 }
 
 $("claimBtn").onclick=async()=>{
 try{
-if(!roomId||!playerId||!tickets.length)throw Error("Wait until your tickets are approved.");
+if(!roomId||!playerId||!tickets.length)
+throw Error("Wait until your tickets are approved.");
 const pattern=$("pattern").value;
-if(pattern==="FULL_HOUSE")throw Error("Full House is automatic. No claim is needed.");
+if(pattern==="FULL_HOUSE")
+throw Error("Full House is automatic. No claim is needed.");
 const t=tickets[0];
-await rpc("hc90_submit_claim",{p_room_id:roomId,p_player_id:playerId,p_ticket_id:t.ticket_id,p_pattern:pattern});
+await rpc("hc90_submit_claim",{
+p_room_id:roomId,
+p_player_id:playerId,
+p_ticket_id:t.ticket_id,
+p_pattern:pattern
+});
 say("claimMsg","Claim submitted. The host must verify it.");
 }catch(e){say("claimMsg",e.message)}
 };
+
+const savedVoice=localStorage.getItem("hc90_voice")||"te";
+$("voiceLanguage").value=savedVoice;
+$("voiceLanguage").onchange=()=>localStorage.setItem("hc90_voice",$("voiceLanguage").value);
+$("testVoice").onclick=()=>speakNumber(25);
 
 document.addEventListener("visibilitychange",()=>{
 if(document.hidden)stopCaller();
