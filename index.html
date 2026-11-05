@@ -7,51 +7,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-:root{
---ink:#2b1748;--pink:#ff4f9a;--orange:#ff9f43;--yellow:#ffd84d;
---purple:#7546d8;--blue:#35b9e8;--green:#22b879;--cream:#fffaf0;
-}
-body{
-margin:0;color:var(--ink);font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at 8% 8%,rgba(255,216,77,.45) 0 7%,transparent 7.3%),
-radial-gradient(circle at 92% 12%,rgba(255,79,154,.22) 0 9%,transparent 9.3%),
-radial-gradient(circle at 5% 88%,rgba(53,185,232,.22) 0 10%,transparent 10.3%),
-linear-gradient(135deg,#fff1d6 0%,#ffe3f0 48%,#e4f7ff 100%);
-background-attachment:fixed;
-}
-header{
-position:relative;overflow:hidden;text-align:center;padding:22px 14px;
-color:#fff;font-size:clamp(22px,5vw,30px);font-weight:900;letter-spacing:1px;
-text-shadow:0 2px 0 rgba(80,30,100,.2);
-background:linear-gradient(100deg,#ff4f9a,#9a4de0 48%,#269fd6);
-border-bottom:5px solid var(--yellow);
-}
-header:before,header:after{
-content:"✦  •  ✧  •  ✦";position:absolute;top:8px;color:#ffe77a;
-font-size:17px;letter-spacing:8px;opacity:.9
-}
+:root{--ink:#2b1748;--pink:#ff4f9a;--orange:#ff9f43;--yellow:#ffd84d;--purple:#7546d8;--blue:#35b9e8;--green:#22b879;--cream:#fffaf0}
+body{margin:0;color:var(--ink);font-family:Arial,sans-serif;background:radial-gradient(circle at 8% 8%,rgba(255,216,77,.45) 0 7%,transparent 7.3%),radial-gradient(circle at 92% 12%,rgba(255,79,154,.22) 0 9%,transparent 9.3%),radial-gradient(circle at 5% 88%,rgba(53,185,232,.22) 0 10%,transparent 10.3%),linear-gradient(135deg,#fff1d6 0%,#ffe3f0 48%,#e4f7ff 100%);background-attachment:fixed}
+header{position:relative;overflow:hidden;text-align:center;padding:22px 14px;color:#fff;font-size:clamp(22px,5vw,30px);font-weight:900;letter-spacing:1px;text-shadow:0 2px 0 rgba(80,30,100,.2);background:linear-gradient(100deg,#ff4f9a,#9a4de0 48%,#269fd6);border-bottom:5px solid var(--yellow)}
+header:before,header:after{content:"✦  •  ✧  •  ✦";position:absolute;top:8px;color:#ffe77a;font-size:17px;letter-spacing:8px;opacity:.9}
 header:before{left:8px}header:after{right:8px}
 main{max-width:760px;margin:auto;padding:14px}
-.card{
-background:rgba(255,255,255,.94);border:2px solid #ffd0e4;
-border-radius:20px;padding:18px;margin:14px 0;
-box-shadow:0 8px 22px rgba(112,58,130,.12);
-}
+.card{background:rgba(255,255,255,.94);border:2px solid #ffd0e4;border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 8px 22px rgba(112,58,130,.12)}
 h2{color:#7737a9;margin:0 0 14px;font-weight:900}
-input,select{
-width:100%;padding:13px;margin:7px 0;border:2px solid #ead9f4;
-border-radius:11px;font-size:16px;background:#fff;color:#38204e;
-outline:none;
-}
+input,select{width:100%;padding:13px;margin:7px 0;border:2px solid #ead9f4;border-radius:11px;font-size:16px;background:#fff;color:#38204e;outline:none}
 input:focus,select:focus{border-color:#a65be0;box-shadow:0 0 0 3px #f1e1ff}
-button{
-background:linear-gradient(110deg,#ff4f9a,#9a4de0);
-color:#fff;border:0;padding:12px 16px;border-radius:12px;
-font-size:15px;font-weight:800;margin:4px;cursor:pointer;
-box-shadow:0 4px 0 #7135a5,0 7px 13px rgba(115,53,165,.16);
-transition:transform .15s,filter .15s;
-}
+button{background:linear-gradient(110deg,#ff4f9a,#9a4de0);color:#fff;border:0;padding:12px 16px;border-radius:12px;font-size:15px;font-weight:800;margin:4px;cursor:pointer;box-shadow:0 4px 0 #7135a5,0 7px 13px rgba(115,53,165,.16);transition:transform .15s,filter .15s}
 button:active{transform:translateY(2px);box-shadow:0 2px 0 #7135a5}
 button:hover{filter:brightness(1.06)}
 button.alt{background:linear-gradient(110deg,#31b9d8,#287ed0);box-shadow:0 4px 0 #205b9a}
@@ -62,81 +28,36 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .status{font-size:18px;color:#168653;font-weight:800}
 .err{color:#c52f55;white-space:pre-wrap}
 .hidden{display:none}
-#board{
-display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:14px;
-padding:10px;background:linear-gradient(135deg,#fff2c8,#ffe2f0);
-border:1px solid #ffd27d;border-radius:16px;
-}
-.ball{
-background:linear-gradient(145deg,#fff,#f4eaff);color:#63338a;
-padding:9px 1px;text-align:center;border:1px solid #e3c8f5;
-border-radius:9px;font-weight:800;box-shadow:0 2px 3px rgba(90,45,120,.08)
-}
-.ball.called{
-color:#fff;background:linear-gradient(145deg,#23c987,#11865c);
-border:1px solid #0e8155;box-shadow:0 0 0 2px #b9f3d9,0 3px 8px #72d9ae;
-}
+#board{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:14px;padding:10px;background:linear-gradient(135deg,#fff2c8,#ffe2f0);border:1px solid #ffd27d;border-radius:16px}
+.ball{background:linear-gradient(145deg,#fff,#f4eaff);color:#63338a;padding:9px 1px;text-align:center;border:1px solid #e3c8f5;border-radius:9px;font-weight:800;box-shadow:0 2px 3px rgba(90,45,120,.08)}
+.ball.called{color:#fff;background:linear-gradient(145deg,#23c987,#11865c);border:1px solid #0e8155;box-shadow:0 0 0 2px #b9f3d9,0 3px 8px #72d9ae}
 .ticketGrid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:10px}
-.cell{
-background:linear-gradient(145deg,#fff4b9,#ffe4a0);color:#55306e;
-padding:12px 1px;text-align:center;border:1px solid #f3c86a;
-border-radius:7px;font-weight:900
-}
+.cell{background:linear-gradient(145deg,#fff4b9,#ffe4a0);color:#55306e;padding:12px 1px;text-align:center;border:1px solid #f3c86a;border-radius:7px;font-weight:900}
 .cell.blank{opacity:.18;background:#eee}
 .cell.markable{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .cell.markable:active{transform:scale(.96)}
-.cell.hit{
-color:#fff;background:linear-gradient(145deg,#24c987,#12865d);
-border-color:#0c8657;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)
-}
-.big{
-font-size:clamp(38px,10vw,54px);font-weight:900;color:#f05b93;
-text-shadow:2px 3px 0 #ffe18a,0 5px 12px rgba(240,91,147,.18)
-}
+.cell.hit{color:#fff;background:linear-gradient(145deg,#24c987,#12865d);border-color:#0c8657;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.big{font-size:clamp(38px,10vw,54px);font-weight:900;color:#f05b93;text-shadow:2px 3px 0 #ffe18a,0 5px 12px rgba(240,91,147,.18)}
 .small{font-size:13px;color:#806b91;font-weight:700}
-.ticketCard{
-background:linear-gradient(135deg,#fff,#fff7df);
-border:2px dashed #eab75a;border-radius:15px;padding:12px;margin:12px 0;
-box-shadow:0 4px 12px rgba(153,105,42,.08)
-}
+.ticketCard{background:linear-gradient(135deg,#fff,#fff7df);border:2px dashed #eab75a;border-radius:15px;padding:12px;margin:12px 0;box-shadow:0 4px 12px rgba(153,105,42,.08)}
 .request{background:#fff0f7;border:1px solid #ffc8df;border-radius:12px;padding:12px;margin:9px 0}
 .request button{min-width:90px}
-#winnerPanel{
-display:none;background:
-radial-gradient(circle at 10% 10%,#fff7a8 0 5%,transparent 5.5%),
-radial-gradient(circle at 90% 15%,#ffd0e7 0 6%,transparent 6.5%),
-linear-gradient(135deg,#fff0a8,#ffdbed,#e2f8ff);
-border:3px solid #f4b934;border-radius:20px;padding:20px;margin:14px 0;
-text-align:center;box-shadow:0 8px 24px rgba(207,142,32,.18)
-}
+#winnerPanel{display:none;background:radial-gradient(circle at 10% 10%,#fff7a8 0 5%,transparent 5.5%),radial-gradient(circle at 90% 15%,#ffd0e7 0 6%,transparent 6.5%),linear-gradient(135deg,#fff0a8,#ffdbed,#e2f8ff);border:3px solid #f4b934;border-radius:20px;padding:20px;margin:14px 0;text-align:center;box-shadow:0 8px 24px rgba(207,142,32,.18)}
 #winnerPanel.show{display:block}
 #winnerPanel h2{color:#a44a8e;font-size:25px}
-.winnerName{
-background:linear-gradient(100deg,#ffb94d,#ff6d9f);
-color:#fff;padding:12px;border-radius:11px;margin:8px 0;
-font-size:20px;font-weight:900;text-shadow:0 1px 2px #a44a5b
-}
-@media(max-width:420px){
-main{padding:9px}.card{padding:14px;border-radius:17px}
-#board{gap:3px;padding:7px}.ball{padding:8px 0;font-size:13px}
-.cell{padding:10px 0;font-size:13px}
-}
+.winnerName{background:linear-gradient(100deg,#ffb94d,#ff6d9f);color:#fff;padding:12px;border-radius:11px;margin:8px 0;font-size:20px;font-weight:900;text-shadow:0 1px 2px #a44a5b}
+@media(max-width:420px){main{padding:9px}.card{padding:14px;border-radius:17px}#board{gap:3px;padding:7px}.ball{padding:8px 0;font-size:13px}.cell{padding:10px 0;font-size:13px}}
 </style>
 </head>
 <body>
 <header>🎟️ HOUSIE CLUB 90</header>
 <main>
-
 <div class="card">
 <h2>Join a Game</h2>
 <input id="playerName" maxlength="30" placeholder="Enter your name">
 <input id="roomCode" maxlength="12" placeholder="Enter room code">
 <label class="small">How many tickets do you need?</label>
-<select id="ticketCount">
-<option value="1">1 Ticket</option>
-<option value="2">2 Tickets</option>
-<option value="3">3 Tickets</option>
-</select>
+<select id="ticketCount"><option value="1">1 Ticket</option><option value="2">2 Tickets</option><option value="3">3 Tickets</option></select>
 <button id="joinBtn">REQUEST TICKET APPROVAL</button>
 <p id="requestStatus" class="status"></p>
 <p class="muted">Tickets are generated only after Admin approval. Maximum 3 tickets per player.</p>
@@ -151,26 +72,16 @@ main{padding:9px}.card{padding:14px;border-radius:17px}
 <p class="muted">A sign-in link will be sent to your email. Open it on this same phone to log in automatically.</p>
 <input id="otp" inputmode="numeric" placeholder="8-digit code (optional)">
 <button id="verifyOtp">Verify code</button>
-
 <div id="adminPanel" class="hidden">
 <button id="createRoom">Create new room</button>
 <p id="createdRoom" class="status"></p>
-<div class="row">
-<button id="startBtn">Start</button>
-<button class="alt" id="pauseBtn">Pause</button>
-<button class="alt" id="resumeBtn">Resume</button>
-</div>
+<div class="row"><button id="startBtn">Start</button><button class="alt" id="pauseBtn">Pause</button><button class="alt" id="resumeBtn">Resume</button></div>
 <label class="small">Seconds between numbers
 <select id="interval">
-<option value="1">1 Second</option>
-<option value="2">2 Seconds</option>
-<option value="3">3 Seconds</option>
-<option value="4">4 Seconds</option>
-<option value="5">5 Seconds</option>
-<option value="10" selected>10 Seconds</option>
-<option value="15">15 Seconds</option>
-<option value="30">30 Seconds</option>
-</select>
+<option value="1">1 Second</option><option value="2">2 Seconds</option><option value="3">3 Seconds</option><option value="4">4 Seconds</option><option value="5">5 Seconds</option><option value="10" selected>10 Seconds</option><option value="15">15 Seconds</option><option value="30">30 Seconds</option>
+</select></label>
+<label class="small">Number Voice Language
+<select id="voiceLanguage"><option value="te">తెలుగు Voice</option><option value="en">English Voice</option></select>
 </label>
 <h2>Ticket Approval Requests</h2>
 <div id="adminRequests" class="muted">Create a room to view requests.</div>
@@ -180,42 +91,24 @@ main{padding:9px}.card{padding:14px;border-radius:17px}
 </div>
 
 <div id="game" class="hidden">
-<div id="winnerPanel">
-<h2>🏆 GAME OVER</h2>
-<h2>WINNER CONFIRMED</h2>
-<div id="winnerNames"></div>
-<p><b>No more numbers will be called.</b></p>
-</div>
-
+<div id="winnerPanel"><h2>🏆 GAME OVER</h2><h2>WINNER CONFIRMED</h2><div id="winnerNames"></div><p><b>No more numbers will be called.</b></p></div>
 <div class="card">
 <h2 id="ticketTitle">Your Tambola Tickets</h2>
 <div id="ticketStatus" class="status"></div>
 <div id="tickets"></div>
 <div class="row">
 <select id="pattern">
-<option value="EARLY_FIVE">Early Five</option>
-<option value="TOP_LINE">Top Line</option>
-<option value="MIDDLE_LINE">Middle Line</option>
-<option value="BOTTOM_LINE">Bottom Line</option>
-<option value="FOUR_CORNERS">Four Corners</option>
-<option value="FULL_HOUSE">Full House</option>
+<option value="EARLY_FIVE">Early Five</option><option value="TOP_LINE">Top Line</option><option value="MIDDLE_LINE">Middle Line</option><option value="BOTTOM_LINE">Bottom Line</option><option value="FOUR_CORNERS">Four Corners</option><option value="FULL_HOUSE">Full House</option>
 </select>
 <button id="claimBtn">Submit Claim</button>
 </div>
 <div id="claimMsg" class="err"></div>
 </div>
-
 <div class="card">
 <h2>Live Game</h2>
 <div class="row">
-<div>
-<div class="small">Latest number</div>
-<div id="latest" class="big">—</div>
-</div>
-<div>
-<div class="small">Status</div>
-<div id="status" class="status">Waiting</div>
-</div>
+<div><div class="small">Latest number</div><div id="latest" class="big">—</div></div>
+<div><div class="small">Status</div><div id="status" class="status">Waiting</div></div>
 </div>
 <div id="board"></div>
 </div>
@@ -226,29 +119,18 @@ main{padding:9px}.card{padding:14px;border-radius:17px}
 const SUPABASE_URL="https://pqprvwivbronbbrcetco.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_UHfN2BBfuPHbWXuqbqfyhQ_-dMzdZnM";
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-
 const $=id=>document.getElementById(id);
 let roomId=null,playerId=null,admin=false,poll=null,caller=null,tickets=[],lastCalled=[];
 let manualMarks=new Set();
 
 function say(id,t){$(id).textContent=t||""}
-function escapeHtml(s){
-return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-async function rpc(name,args={}){
-const {data,error}=await db.rpc(name,args);
-if(error)throw error;
-return data;
-}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
 function list(v){
 if(Array.isArray(v))return v;
 if(v==null)return[];
 if(typeof v==="string"){try{return list(JSON.parse(v))}catch(_){return[]}}
-if(typeof v==="object"){
-for(const k of ["numbers","called","ticket","grid","rows","data"])
-if(Array.isArray(v[k]))return v[k];
-return Object.values(v);
-}
+if(typeof v==="object"){for(const k of ["numbers","called","ticket","grid","rows","data"])if(Array.isArray(v[k]))return v[k];return Object.values(v)}
 return[];
 }
 function flat(v){return list(v).flatMap(x=>Array.isArray(x)?flat(x):[x])}
@@ -260,8 +142,8 @@ return `<div class="ticketCard"><b>Ticket ${i+1}</b><div class="ticketGrid">${Ar
 const n=cells[j],valid=n!==null&&n!==undefined&&n!=="";
 const num=valid?Number(n):null;
 const marked=manualMarks.has(`${i}-${j}`);
-const markable=valid&&Number.isFinite(num)&&!!playerId&&!admin;
-return `<div class="cell ${!valid?"blank":marked?"hit":""} ${markable?"markable":""}" ${markable?`data-ticket="${i}" data-cell="${j}" role="button" aria-pressed="${marked}"`:''}>${valid&&Number.isFinite(num)?num:""}</div>`;
+const canMark=valid&&Number.isFinite(num)&&!!playerId&&!admin;
+return `<div class="cell ${!valid?"blank":marked?"hit":""} ${canMark?"markable":""}" ${canMark?`data-ticket="${i}" data-cell="${j}" role="button" aria-pressed="${marked}"`:''}>${valid&&Number.isFinite(num)?num:""}</div>`;
 }).join("")}</div></div>`;
 }).join("");
 }
@@ -270,36 +152,55 @@ $("tickets").addEventListener("click",e=>{
 const cell=e.target.closest(".cell[data-ticket][data-cell]");
 if(!cell||!playerId||admin)return;
 const key=`${cell.dataset.ticket}-${cell.dataset.cell}`;
-if(manualMarks.has(key)){
-manualMarks.delete(key);
-cell.classList.remove("hit");
-cell.setAttribute("aria-pressed","false");
-}else{
-manualMarks.add(key);
-cell.classList.add("hit");
-cell.setAttribute("aria-pressed","true");
-}
+if(manualMarks.has(key)){manualMarks.delete(key);cell.classList.remove("hit");cell.setAttribute("aria-pressed","false")}
+else{manualMarks.add(key);cell.classList.add("hit");cell.setAttribute("aria-pressed","true")}
 });
 
-function stopCaller(){
-if(caller){clearInterval(caller);caller=null}
+function stopCaller(){if(caller){clearInterval(caller);caller=null}}
+
+const teluguNumbers={
+1:"ఒకటి",2:"రెండు",3:"మూడు",4:"నాలుగు",5:"ఐదు",6:"ఆరు",7:"ఏడు",8:"ఎనిమిది",9:"తొమ్మిది",10:"పది",
+11:"పదకొండు",12:"పన్నెండు",13:"పదమూడు",14:"పద్నాలుగు",15:"పదిహేను",16:"పదహారు",17:"పదిహేడు",18:"పద్దెనిమిది",19:"పంతొమ్మిది",20:"ఇరవై",
+21:"ఇరవై ఒకటి",22:"ఇరవై రెండు",23:"ఇరవై మూడు",24:"ఇరవై నాలుగు",25:"ఇరవై ఐదు",26:"ఇరవై ఆరు",27:"ఇరవై ఏడు",28:"ఇరవై ఎనిమిది",29:"ఇరవై తొమ్మిది",30:"ముప్పై",
+31:"ముప్పై ఒకటి",32:"ముప్పై రెండు",33:"ముప్పై మూడు",34:"ముప్పై నాలుగు",35:"ముప్పై ఐదు",36:"ముప్పై ఆరు",37:"ముప్పై ఏడు",38:"ముప్పై ఎనిమిది",39:"ముప్పై తొమ్మిది",40:"నలభై",
+41:"నలభై ఒకటి",42:"నలభై రెండు",43:"నలభై మూడు",44:"నలభై నాలుగు",45:"నలభై ఐదు",46:"నలభై ఆరు",47:"నలభై ఏడు",48:"నలభై ఎనిమిది",49:"నలభై తొమ్మిది",50:"యాభై",
+51:"యాభై ఒకటి",52:"యాభై రెండు",53:"యాభై మూడు",54:"యాభై నాలుగు",55:"యాభై ఐదు",56:"యాభై ఆరు",57:"యాభై ఏడు",58:"యాభై ఎనిమిది",59:"యాభై తొమ్మిది",60:"అరవై",
+61:"అరవై ఒకటి",62:"అరవై రెండు",63:"అరవై మూడు",64:"అరవై నాలుగు",65:"అరవై ఐదు",66:"అరవై ఆరు",67:"అరవై ఏడు",68:"అరవై ఎనిమిది",69:"అరవై తొమ్మిది",70:"డెబ్బై",
+71:"డెబ్బై ఒకటి",72:"డెబ్బై రెండు",73:"డెబ్బై మూడు",74:"డెబ్బై నాలుగు",75:"డెబ్బై ఐదు",76:"డెబ్బై ఆరు",77:"డెబ్బై ఏడు",78:"డెబ్బై ఎనిమిది",79:"డెబ్బై తొమ్మిది",80:"ఎనభై",
+81:"ఎనభై ఒకటి",82:"ఎనభై రెండు",83:"ఎనభై మూడు",84:"ఎనభై నాలుగు",85:"ఎనభై ఐదు",86:"ఎనభై ఆరు",87:"ఎనభై ఏడు",88:"ఎనభై ఎనిమిది",89:"ఎనభై తొమ్మిది",90:"తొంభై"
+};
+
+function englishNumber(n){
+const ones=["zero","one","two","three","four","five","six","seven","eight","nine"];
+const teens=["ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+const tens=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+if(n<10)return ones[n];
+if(n<20)return teens[n-10];
+return tens[Math.floor(n/10)]+(n%10?" "+ones[n%10]:"");
+}
+
+function speakNumber(n){
+if(!admin||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+const lang=$("voiceLanguage")?.value||"te";
+const words=lang==="te"?teluguNumbers[n]:englishNumber(n);
+const utterance=new SpeechSynthesisUtterance(words);
+utterance.lang=lang==="te"?"te-IN":"en-IN";
+utterance.rate=0.9;
+window.speechSynthesis.cancel();
+window.speechSynthesis.speak(utterance);
 }
 
 function renderWinners(winners){
 if(!Array.isArray(winners)||!winners.length)return;
 $("winnerPanel").classList.add("show");
-$("winnerNames").innerHTML=winners.map((w,i)=>
-`<div class="winnerName">${i+1}. ${escapeHtml(w.player_name||"Player")}</div>`
-).join("");
+$("winnerNames").innerHTML=winners.map((w,i)=>`<div class="winnerName">${i+1}. ${escapeHtml(w.player_name||"Player")}</div>`).join("");
 stopCaller();
 }
 
 function renderState(s){
 lastCalled=flat(s.called).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=90);
 $("latest").textContent=lastCalled.length?lastCalled[lastCalled.length-1]:"—";
-$("board").innerHTML=Array.from({length:90},(_,i)=>
-`<div class="ball ${lastCalled.includes(i+1)?"called":""}">${i+1}</div>`
-).join("");
+$("board").innerHTML=Array.from({length:90},(_,i)=>`<div class="ball ${lastCalled.includes(i+1)?"called":""}">${i+1}</div>`).join("");
 $("status").textContent=s.status==="finished"?"GAME OVER":s.status||"waiting";
 renderTickets();
 if(s.winners&&s.winners.length)renderWinners(s.winners);
@@ -334,18 +235,14 @@ renderTickets();
 }
 
 $("joinBtn").onclick=async()=>{
-say("joinMsg","");
-say("requestStatus","");
+say("joinMsg","");say("requestStatus","");
 try{
 const name=$("playerName").value.trim();
 const code=$("roomCode").value.trim().toUpperCase();
 const count=Number($("ticketCount").value);
 if(!name||!code)throw Error("Enter your name and room code.");
 const r=await rpc("hc90_request_tickets",{p_name:name,p_room_code:code,p_ticket_count:count});
-roomId=r.room_id;
-playerId=r.player_id;
-tickets=[];
-manualMarks.clear();
+roomId=r.room_id;playerId=r.player_id;tickets=[];manualMarks.clear();
 $("roomCode").value=r.room_code;
 $("game").classList.remove("hidden");
 $("ticketTitle").textContent="Room "+r.room_code+" — Your Tickets";
@@ -380,17 +277,14 @@ const {error}=await db.auth.verifyOtp({token_hash:tokenHash,type});
 if(error)throw error;
 history.replaceState({},document.title,location.pathname);
 await activateAdminSession();
-}catch(e){
-say("adminMsg","Email sign-in failed: "+e.message+". Please request a fresh sign-in link.");
-}
+}catch(e){say("adminMsg","Email sign-in failed: "+e.message+". Please request a fresh sign-in link.")}
 return;
 }
 await activateAdminSession();
 }
 
 db.auth.onAuthStateChange((event,session)=>{
-if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session)
-setTimeout(()=>activateAdminSession(),0);
+if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session)setTimeout(()=>activateAdminSession(),0);
 });
 handleEmailCallback();
 
@@ -417,10 +311,7 @@ await activateAdminSession();
 $("createRoom").onclick=async()=>{
 try{
 const r=await rpc("hc90_create_room");
-roomId=r.room_id;
-playerId=null;
-tickets=[];
-manualMarks.clear();
+roomId=r.room_id;playerId=null;tickets=[];manualMarks.clear();
 $("createdRoom").textContent="New room code: "+r.room_code+" — share this code with players.";
 $("ticketTitle").textContent="Room "+r.room_code+" — Admin View";
 $("game").classList.remove("hidden");
@@ -435,12 +326,8 @@ async function refreshAdminRequests(){
 if(!admin||!roomId)return;
 try{
 const reqs=await rpc("hc90_get_ticket_requests",{p_room_id:roomId});
-$("adminRequests").innerHTML=reqs.length?reqs.map(q=>
-`<div class="request"><b>${escapeHtml(q.player_name)}</b><p>${q.requested_count} ticket(s) requested</p><button data-id="${q.request_id}" data-approve="true">Approve</button><button class="alt" data-id="${q.request_id}" data-approve="false">Reject</button></div>`
-).join(""):"No pending requests.";
-$("adminRequests").querySelectorAll("button[data-id]").forEach(b=>
-b.onclick=()=>reviewRequest(b.dataset.id,b.dataset.approve==="true")
-);
+$("adminRequests").innerHTML=reqs.length?reqs.map(q=>`<div class="request"><b>${escapeHtml(q.player_name)}</b><p>${q.requested_count} ticket(s) requested</p><button data-id="${q.request_id}" data-approve="true">Approve</button><button class="alt" data-id="${q.request_id}" data-approve="false">Reject</button></div>`).join(""):"No pending requests.";
+$("adminRequests").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>reviewRequest(b.dataset.id,b.dataset.approve==="true"));
 }catch(e){say("adminMsg",e.message)}
 }
 
@@ -472,37 +359,23 @@ if(caller||!admin||!roomId)return;
 caller=setInterval(async()=>{
 try{
 const s=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
-
-/* FIX: Database status is "playing", not "running" */
-if(s.status!=="playing"||(s.winners&&s.winners.length)){
-stopCaller();
-renderState(s);
-return;
-}
-
+if(s.status!=="playing"||(s.winners&&s.winners.length)){stopCaller();renderState(s);return}
 await rpc("hc90_call_next",{p_room_id:roomId});
+const updated=await rpc("hc90_get_state",{p_room_id:roomId,p_player_id:null});
+const called=flat(updated.called).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=90);
+if(called.length)speakNumber(called[called.length-1]);
 await refresh();
-}catch(e){
-say("adminMsg",e.message);
-stopCaller();
-}
+}catch(e){say("adminMsg",e.message);stopCaller()}
 },Number($("interval").value)*1000);
 }
 
 $("claimBtn").onclick=async()=>{
 try{
-if(!roomId||!playerId||!tickets.length)
-throw Error("Wait until your tickets are approved.");
+if(!roomId||!playerId||!tickets.length)throw Error("Wait until your tickets are approved.");
 const pattern=$("pattern").value;
-if(pattern==="FULL_HOUSE")
-throw Error("Full House is automatic. No claim is needed.");
+if(pattern==="FULL_HOUSE")throw Error("Full House is automatic. No claim is needed.");
 const t=tickets[0];
-await rpc("hc90_submit_claim",{
-p_room_id:roomId,
-p_player_id:playerId,
-p_ticket_id:t.ticket_id,
-p_pattern:pattern
-});
+await rpc("hc90_submit_claim",{p_room_id:roomId,p_player_id:playerId,p_ticket_id:t.ticket_id,p_pattern:pattern});
 say("claimMsg","Claim submitted. The host must verify it.");
 }catch(e){say("claimMsg",e.message)}
 };
